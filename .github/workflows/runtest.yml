@@ -1,4 +1,4 @@
-name: Sanity test
+name: ML Pipeline
 
 on:
   push:
@@ -6,44 +6,58 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  test_model:
+  ml_pipeline:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.9"
 
-      - name: install dependencies
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install tensorflow numpy tqdm pillow
 
-      - name: run tests
+      # ✅ RUN TRAINING (generates metrics.csv)
+      - name: Run training
         run: |
-          python -m unittest 2>&1 | tee test_output.txt
+          python train.py
 
-      # ✅ NEW: generate metrics file
-      - name: generate metrics
+      # ✅ SHOW REAL METRICS (IMPORTANT)
+      - name: Show training metrics
         run: |
-          echo "epoch,accuracy" > metrics.csv
-          echo "1,0.9" >> metrics.csv
+          echo "===== TRAINING METRICS ====="
+          cat metrics.csv
 
-      # ✅ OPTIONAL: create report (you already had this idea)
-      - name: create report
+      # ✅ RUN TEST (prediction)
+      - name: Run testing
         run: |
-          echo "## Test Output" > report.md
-          cat test_output.txt >> report.md
+          python -m unittest test.py
 
-      # ✅ NEW: commit & push generated files
-      - name: commit results
+      # ✅ SHOW PREDICTION OUTPUT
+      - name: Show prediction
+        run: |
+          cat prediction.txt
+
+      # ✅ CREATE REPORT FILE
+      - name: Create report
+        run: |
+          echo "## Training Metrics" > report.md
+          cat metrics.csv >> report.md
+          echo "\n## Prediction Output" >> report.md
+          cat prediction.txt >> report.md
+
+      # ✅ COMMIT OUTPUTS BACK TO REPO
+      - name: Commit results
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add metrics.csv report.md
-          git commit -m "Add metrics and report" || echo "No changes to commit"
+          git add metrics.csv prediction.txt report.md top_model_complete.h5 || true
+          git commit -m "Add training metrics and prediction output" || echo "No changes"
           git push
