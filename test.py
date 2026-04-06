@@ -50,7 +50,7 @@ class TestModel(unittest.TestCase):
         return resized_sample.numpy()
 
     def test_sample1(self):
-        sample1 = os.path.join(self.samples_path, "cat.1.jpg")
+        sample1 = os.path.join(self.samples_path, "sample1.jpg")
         resized = self.convert_img(sample1)
 
         result = self.restored_model.predict(resized)
