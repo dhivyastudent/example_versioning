@@ -47,7 +47,7 @@ class TestModel(unittest.TestCase):
         return resized_sample.numpy()
 
     def test_sample1(self):
-        sample1 = os.path.join(self.samples_path, "sample1.jpg")
+        sample1 = os.path.join(self.samples_path, "samples/sample1.jpg")
 
         print("\n📸 Testing image:", sample1)
 
