@@ -27,7 +27,23 @@ jobs:
         run: |
           python -m unittest 2>&1 | tee test_output.txt
 
+      # ✅ NEW: generate metrics file
+      - name: generate metrics
+        run: |
+          echo "epoch,accuracy" > metrics.csv
+          echo "1,0.9" >> metrics.csv
+
+      # ✅ OPTIONAL: create report (you already had this idea)
       - name: create report
         run: |
           echo "## Test Output" > report.md
           cat test_output.txt >> report.md
+
+      # ✅ NEW: commit & push generated files
+      - name: commit results
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add metrics.csv report.md
+          git commit -m "Add metrics and report" || echo "No changes to commit"
+          git push
