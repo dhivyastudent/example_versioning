@@ -1,4 +1,6 @@
 tensorflow
 numpy
 tqdm
-
+scikit-learn
+pillow
+numpy
